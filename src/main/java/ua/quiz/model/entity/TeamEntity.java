@@ -25,4 +25,5 @@ public class TeamEntity {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameEntity> games;
+
 }
