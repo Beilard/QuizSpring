@@ -35,7 +35,6 @@ public class User implements UserDetails {
     @NotEmpty(message = "Please, provide isCaptain")
     private Boolean isCaptain;
 
-
     private Team team;
     private Role role;
 
