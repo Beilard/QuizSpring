@@ -36,6 +36,7 @@ public class User implements UserDetails {
     private Boolean isCaptain;
 
     private Team team;
+
     private Role role;
 
     @Override
