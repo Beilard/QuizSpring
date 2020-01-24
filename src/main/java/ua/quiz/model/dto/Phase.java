@@ -7,7 +7,7 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@Builder(toBuilder=true)
 public class Phase {
     private Long id;
 

@@ -7,7 +7,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data
-@Builder
+@Builder(toBuilder=true)
 public class Game {
     private Long id;
 

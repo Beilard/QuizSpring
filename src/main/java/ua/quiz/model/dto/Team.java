@@ -1,12 +1,14 @@
 package ua.quiz.model.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class Team {
     private Long id;
 
