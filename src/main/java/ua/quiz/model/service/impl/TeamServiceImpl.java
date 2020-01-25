@@ -24,7 +24,7 @@ import java.util.Optional;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j
 public class TeamServiceImpl implements TeamService {
-    private static final Logger LOGGER = Logger.getLogger(TeamServiceImpl.class);
+
     private static final int MAX_TEAM_NAME_LENGTH = 31;
     private static final int MIN_TEAM_NAME_LENGTH = 1;
 
@@ -37,13 +37,13 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void createTeam(String teamName) {
         if (teamName.length() < MIN_TEAM_NAME_LENGTH || teamName.length() > MAX_TEAM_NAME_LENGTH) {
-            LOGGER.warn("Provided arguments are incorrect: " + teamName);
+            log.warn("Provided arguments are incorrect: " + teamName);
             throw new IllegalArgumentException("Provided arguments are incorrect: ");
         }
         Optional<TeamEntity> teamFoundByName = teamRepository.findByTeamName(teamName);
 
         if (teamFoundByName.isPresent()) {
-            LOGGER.info("Team with name found " + teamName);
+            log.info("Team with name found " + teamName);
             throw new EntityAlreadyExistsException("Team with name found " + teamName);
         }
         final TeamEntity team = new TeamEntity();
@@ -56,7 +56,7 @@ public class TeamServiceImpl implements TeamService {
         if (newCaptain == null || oldCaptain == null
                 || !Objects.equals(newCaptain.getTeam().getId(), oldCaptain.getTeam().getId())
                 || newCaptain.getIsCaptain()) {
-            LOGGER.warn("New captain or teamId passed were null");
+            log.warn("New captain or teamId passed were null");
             throw new IllegalArgumentException("New captain or teamId passed were null");
         }
 
@@ -68,7 +68,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void joinTeam(User user, Long teamId) {
         if (user == null || teamId == null || teamId <= 0) {
-            LOGGER.warn("User or teamId passed to join team are null or illegal");
+            log.warn("User or teamId passed to join team are null or illegal");
             throw new IllegalArgumentException("User or teamId passed to join team are null or illegal");
         }
         final UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(EntityNotFoundException::new);
@@ -80,7 +80,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void leaveTeam(User user) {
         if (user == null || user.getIsCaptain()) {
-            LOGGER.warn("User passed to leave is null or captain");
+            log.warn("User passed to leave is null or captain");
             throw new IllegalArgumentException("User passed to leave is null or captain");
         }
 
@@ -90,7 +90,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public Team findTeamByName(String name) {
         if (name == null) {
-            LOGGER.warn("String provided for findByName was null");
+            log.warn("String provided for findByName was null");
             throw new IllegalArgumentException("String provided for findByName was null");
         }
         final TeamEntity teamEntity = teamRepository.findByTeamName(name).orElseThrow(EntityNotFoundException::new);
@@ -100,7 +100,7 @@ public class TeamServiceImpl implements TeamService {
 
     private User changeCaptainStatus(User user, boolean isCaptain) {
         if (user == null) {
-            LOGGER.warn("User passed to change captaincy is null");
+            log.warn("User passed to change captaincy is null");
             throw new IllegalArgumentException("User passed to change captaincy is null");
         }
 
