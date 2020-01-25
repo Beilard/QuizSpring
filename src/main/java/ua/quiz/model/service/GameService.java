@@ -19,9 +19,9 @@ public interface GameService {
 
     Long getCorrectAnswersCount(Game game);
 
-    List<Game> findAll(Long page, Long rowCount);
+    List<Game> findAll(Integer page, Integer rowCount);
 
-    List<Game> findAllByTeamId(Long teamId, Long page, Long rowCount);
+    List<Game> findAllByTeamId(Long teamId, Integer page, Integer rowCount);
 
     Long countAllEntries();
 
