@@ -1,10 +1,12 @@
 package ua.quiz.model.service.mapper;
 
+import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Question;
 import ua.quiz.model.entity.QuestionEntity;
 
 import java.util.Objects;
 
+@Component
 public class QuestionMapper {
     public Question mapQuestionEntityToQuestion(QuestionEntity entity) {
         return Objects.isNull(entity) ? null : Question.builder()

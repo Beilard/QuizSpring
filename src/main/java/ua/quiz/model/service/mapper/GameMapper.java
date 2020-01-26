@@ -1,5 +1,6 @@
 package ua.quiz.model.service.mapper;
 
+import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Game;
 import ua.quiz.model.dto.Phase;
 import ua.quiz.model.dto.Status;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Component
 public class GameMapper {
     private final PhaseMapper phaseMapper = new PhaseMapper();
 

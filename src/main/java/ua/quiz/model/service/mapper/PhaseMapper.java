@@ -1,11 +1,12 @@
 package ua.quiz.model.service.mapper;
 
+import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Phase;
-import ua.quiz.model.dto.Question;
 import ua.quiz.model.entity.PhaseEntity;
 
 import java.util.Objects;
 
+@Component
 public class PhaseMapper {
     private final QuestionMapper questionMapper = new QuestionMapper();
 

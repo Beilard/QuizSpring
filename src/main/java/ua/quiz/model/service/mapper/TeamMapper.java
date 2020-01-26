@@ -1,10 +1,12 @@
 package ua.quiz.model.service.mapper;
 
+import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Team;
 import ua.quiz.model.entity.TeamEntity;
 
 import java.util.Objects;
 
+@Component
 public class TeamMapper {
     public Team mapTeamEntityToTeam(TeamEntity teamEntity) {
         if (Objects.isNull(teamEntity)) {

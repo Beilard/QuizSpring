@@ -1,5 +1,6 @@
 package ua.quiz.model.service.mapper;
 
+import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Role;
 import ua.quiz.model.dto.User;
 import ua.quiz.model.entity.RoleEntity;
@@ -7,6 +8,7 @@ import ua.quiz.model.entity.UserEntity;
 
 import java.util.Objects;
 
+@Component
 public class UserMapper {
     private final TeamMapper teamMapper = new TeamMapper();
 
