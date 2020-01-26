@@ -32,7 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/register").permitAll()
-                .antMatchers("/judge/**").hasAnyAuthority("JUDGE")
+                .antMatchers("/judge/**").hasAuthority("JUDGE")
                 .antMatchers("/player/**").hasAuthority("PLAYER").anyRequest()
                 .authenticated().and().csrf().disable().formLogin()
                 .loginPage("/login").failureUrl("/login?loginError=true").successHandler(loginSuccessHandler).permitAll()
