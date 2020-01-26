@@ -9,7 +9,6 @@ import javax.validation.constraints.Pattern;
 import java.util.Collection;
 import java.util.Collections;
 
-//TODO: solve get problems
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +32,6 @@ public class User implements UserDetails {
     @Pattern(regexp = "^[a-zA-Zа-яА-Яієї']{2,25}$", message = "Surname should be at least 2 characters long and have no numbers")
     private String surname;
 
-    @NotEmpty(message = "Please, provide isCaptain")
     private Boolean isCaptain;
 
     private Team team;

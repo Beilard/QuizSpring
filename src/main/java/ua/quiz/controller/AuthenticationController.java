@@ -39,7 +39,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ModelAndView registerUser(@Valid User user, BindingResult bindingResult,
-                                     @RequestParam(name = "passwordConfirmation") String confirmPass) {
+                                     @RequestParam(name = "confirmPassword") String confirmPass) {
         ModelAndView modelAndView = new ModelAndView();
 
         if (bindingResult.hasErrors()) {

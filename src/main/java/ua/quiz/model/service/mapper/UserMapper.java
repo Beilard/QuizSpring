@@ -39,10 +39,17 @@ public class UserMapper {
         entity.setPassword(user.getPassword());
         entity.setName(user.getName());
         entity.setSurname(user.getSurname());
-        entity.setIsCaptain(user.getIsCaptain());
+        entity.setIsCaptain(user.getIsCaptain() == null ? false : user.getIsCaptain());
         entity.setTeam(teamMapper.mapTeamToTeamEntity(user.getTeam()));
-        entity.setRole(RoleEntity.valueOf(user.getRole().name()));
+        entity.setRole(getRoleForEntity(user));
 
         return entity;
+    }
+
+    private RoleEntity getRoleForEntity(User user) {
+        if (user.getRole() == null) {
+            return RoleEntity.PLAYER;
+        }
+        return RoleEntity.valueOf(user.getRole().name());
     }
 }
