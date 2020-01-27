@@ -3,11 +3,14 @@ package ua.quiz.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ua.quiz.model.dto.LoginForm;
 import ua.quiz.model.dto.User;
 import ua.quiz.model.service.UserService;
 
@@ -16,6 +19,7 @@ import javax.validation.Valid;
 import java.util.Objects;
 
 @Controller
+@RequestMapping("/")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthenticationController {
     private final UserService userService;
@@ -25,9 +29,13 @@ public class AuthenticationController {
         return "index";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @GetMapping(value = {"/login"})
+    public String login(Model model, @Valid LoginForm loginForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "login";
+        }
+        model.addAttribute("user", loginForm.getEmail());
+        return "/player/player-page";
     }
 
     @GetMapping("/register")

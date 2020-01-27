@@ -33,15 +33,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/register").permitAll()
                 .antMatchers("/judge/**").hasAuthority("JUDGE")
-                .antMatchers("/player/**").hasAuthority("PLAYER").anyRequest()
+                .antMatchers("/player/**").hasAnyAuthority("PLAYER", "JUDGE").anyRequest()
                 .authenticated().and().csrf().disable().formLogin()
-                .loginPage("/login").failureUrl("/login?loginError=true").successHandler(loginSuccessHandler).permitAll()
+                .loginPage("/login").failureUrl("/login?error=true").successHandler(loginSuccessHandler).permitAll()
                 .usernameParameter("email")
                 .passwordParameter("password")
-                .and().logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/").and().exceptionHandling()
-                .accessDeniedPage("/404-error");
+                .and().logout().permitAll().and()
+                .exceptionHandling().accessDeniedPage("/404-error");
+//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+//                .logoutSuccessUrl("/").and().exceptionHandling()
+
 
     }
 
