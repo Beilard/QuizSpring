@@ -1,28 +1,34 @@
 package ua.quiz.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import ua.quiz.model.dto.Team;
-import ua.quiz.model.dto.User;
+import ua.quiz.model.dto.*;
+import ua.quiz.model.exception.EntityAlreadyExistsException;
+import ua.quiz.model.exception.EntityNotFoundException;
+import ua.quiz.model.service.GameService;
+import ua.quiz.model.service.PhaseService;
 import ua.quiz.model.service.TeamService;
 import ua.quiz.model.service.UserService;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
+@Log4j
 @Controller
 @RequestMapping("/player")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PlayerController {
     private UserService userService;
     private TeamService teamService;
+    private GameService gameService;
+    private PhaseService phaseService;
 
     @GetMapping
     public String main(HttpSession session) {
@@ -34,14 +40,19 @@ public class PlayerController {
     }
 
     @GetMapping("/create-team")
-    public String showCreateTeam(){
+    public String showCreateTeam() {
         return "create-team";
     }
 
-
-    public ModelAndView createTeam(HttpSession session, @RequestParam("teamName") String teamName) {
-        final ModelAndView modelAndView = new ModelAndView("profile-page");
-        teamService.createTeam(teamName);
+    @GetMapping("/form-team")
+    public String createTeam(Model model, HttpSession session, @RequestParam("teamName") String teamName) {
+        try {
+            teamService.createTeam(teamName);
+        } catch (EntityAlreadyExistsException | IllegalArgumentException e) {
+            log.info("Team name passed was either null of taken");
+            model.addAttribute("nameTaken", true);
+            return "create-team";
+        }
 
         final Team formedTeam = teamService.findTeamByName(teamName);
 
@@ -53,22 +64,196 @@ public class PlayerController {
                 .build());
 
         session.setAttribute("user", userService.findByEmail(user.getEmail()));
-        return modelAndView;
+        return "profile-page";
     }
 
-    public ModelAndView joinTeam(HttpSession session, @RequestParam("teamNameForJoin") String teamNameForJoin) {
-        final ModelAndView modelAndView = new ModelAndView("profile-page");
+    @GetMapping("/join-team")
+    public String joinTeam(Model model, HttpSession session, @RequestParam("teamNameForJoin") String teamNameForJoin) {
+        final User user = (User) session.getAttribute("user");
+
+        try {
+            teamService.joinTeam(user, teamService.findTeamByName(teamNameForJoin).getId());
+            session.setAttribute("user", removePassword(userService.findByEmail(user.getEmail())));
+        } catch (IllegalArgumentException | EntityNotFoundException e) {
+            log.info("Failed to join");
+            model.addAttribute("nameDoesNotExist", true);
+            return "create-team";
+        }
+
+        return "player-page";
+    }
+
+
+    @GetMapping("/check-team")
+    public String checkTeam(Model model, HttpSession session) {
+        final User user = (User) session.getAttribute("user");
+
+        try {
+            List<User> usersOfTeam = userService.findByTeamId(user.getTeam().getId());
+            session.setAttribute("usersOfTeam", usersOfTeam);
+        } catch (IllegalArgumentException | EntityNotFoundException e) {
+            log.info("Failed to create user list");
+            return "/player";
+        }
+
+        return "check-team";
+    }
+
+    @GetMapping("/change-captains")
+    public String changeCaptains(Model model, HttpSession session,
+                                 @RequestParam(name = "newCaptainEmail") String newCaptainEmail) {
+        final User user = (User) session.getAttribute("user");
+        try {
+            teamService.changeCaptain(userService.findByEmail(newCaptainEmail), user);
+        } catch (EntityNotFoundException | IllegalArgumentException e) {
+            log.info("User " + user + " tried to change captaincy with an invalid argument");
+            return "forward:/player";
+        }
+
+        final User userWithPassword = userService.findByEmail(user.getEmail());
+
+        session.setAttribute("user", removePassword(userWithPassword));
+        return "forward:/player";
+    }
+
+    @GetMapping("/leave-team")
+    public String leaveTeam(Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
-        teamService.joinTeam(user, teamService.findTeamByName(teamNameForJoin).getId());
-        session.setAttribute("user", userService.findByEmail(user.getEmail()));
+        if (user.getIsCaptain()) {
+            model.addAttribute("isCaptainText", true);
+            return "team-page";
+        }
+        User userWithPassword = userService.findByEmail(user.getEmail());
+        teamService.leaveTeam(userWithPassword);
+        session.setAttribute("user", removePassword(userWithPassword));
 
-        return modelAndView;
+        return "player-page";
     }
 
-    public ModelAndView leaveTeam(HttpSession session) {
-        final ModelAndView modelAndView = new ModelAndView("profile-page");
+    @GetMapping("/configure-game")
+    public String configureGame(Model model, HttpSession session,
+                                @RequestParam(value = "numberOfQuestions", defaultValue = "10") Integer numberOfQuestions,
+                                @RequestParam(value = "timePerQuestion", defaultValue = "60") Integer timePerQuestion) {
+        final Long teamId = ((User) (session.getAttribute("user"))).getTeam().getId();
+        final Game game = gameService.startGame(teamId, numberOfQuestions, timePerQuestion);
+
+        session.setAttribute("game", game);
+        return "forward:/generatePhase";
+    }
+
+    @GetMapping("/generate-phase")
+    public String generatePhase(Model model, HttpSession session) {
+        final Game game = (Game) session.getAttribute("game");
+
+        final Phase currentPhase = game.getPhases().get(game.getCurrentPhase());
+        phaseService.initiatePhase(currentPhase, game.getTimePerQuestion());
+        Game modifiedGame = gameService.findById(game.getId());
+        session.setAttribute("game", modifiedGame);
+        session.setAttribute("question", getQuestion(modifiedGame));
+        model.addAttribute("hintUsed", false);
+
+        return "forward:/view-phase";
+    }
+
+    @GetMapping("/finish-phase")
+    public String finishPhase(Model model, HttpSession session,
+                              @RequestParam(value = "givenAnswer") String givenAnswer) {
+        final Game game = (Game) session.getAttribute("game");
+
+        if (givenAnswer == null) {
+            return "forward:/view-phase";
+        }
+
+        final Integer currentPhase = game.getCurrentPhase();
+
+        phaseService.finishPhase(game.getPhases().get(currentPhase), givenAnswer);
+
+        game.setCurrentPhase(currentPhase + 1);
+        gameService.updateGame(game);
+
+        session.setAttribute("game", gameService.findById(game.getId()));
+
+        if (currentPhase >= game.getNumberOfQuestions() - 1) {
+            return "forward:/finish-game";
+        } else {
+            return "forward:/generate-phase";
+        }
+    }
+
+    @GetMapping("/finish-game")
+    public String finishGame(Model model, HttpSession session) {
+        Game game = (Game) session.getAttribute("game");
+        gameService.finishGame(game);
+        session.removeAttribute("game");
+        return "player-page";
+    }
+
+    @GetMapping("provide-hint")
+    public String provideHint(Model model, HttpSession session) {
+        final Game game = (Game) session.getAttribute("game");
+
+        phaseService.useHint(game.getPhases().get(game.getCurrentPhase()));
+
+        session.setAttribute("game", gameService.findById(game.getId()));
+        model.addAttribute("hintUsed", true);
+
+        return "game-page";
+    }
+
+    @GetMapping("/statistics")
+    public String getStatistics(Model model, HttpSession session,
+                                @RequestParam(value = "joinGameId") Long gameId) {
+        Game game = gameService.findById(gameId);
+
+        if (game.getStatus() != Status.REVIEWED) {
+            return "player-page";
+        }
+        Long correctAnswersCount = gameService.getCorrectAnswersCount(game);
+
+        session.setAttribute("correctAnswersCount", correctAnswersCount);
+        session.setAttribute("numberOfQuestions", game.getNumberOfQuestions());
+
+        return "statistics-page";
+    }
+
+    @GetMapping("join-game")
+    public String joinGame(Model model, HttpSession session,
+                           @RequestParam(value = "joinGameId") Long gameId) {
+        final User user = (User) session.getAttribute("user");
+        Game foundGame;
+
+        try {
+            foundGame = gameService.findById(gameId);
+        } catch (EntityNotFoundException e) {
+            log.info("Game with ID " + gameId + "not found");
+            return "player-page";
+        }
+
+        if (foundGame.getStatus() == Status.REVIEWED) {
+            return "forward:/statistics";
+        } else if (foundGame.getStatus() == Status.PENDING) {
+            return "player-page";
+        }
+
+        if (!foundGame.getTeamId().equals(user.getTeam().getId())) {
+            log.info("User tried to join not his team's game. User ID: " + user.getId());
+            return "player-page";
+        }
+        session.setAttribute("game", foundGame);
+        session.setAttribute("question", getQuestion(foundGame));
+        model.addAttribute("hintUsed", getQuestion(foundGame).getHint());
+
+        return "/game?command=player-viewPhase";
+    }
 
 
-        return modelAndView;
+    private User removePassword(User user) {
+        return user.toBuilder()
+                .password(null)
+                .build();
+    }
+
+    private Question getQuestion(Game modifiedGame) {
+        return modifiedGame.getPhases().get(modifiedGame.getCurrentPhase()).getQuestion();
     }
 }

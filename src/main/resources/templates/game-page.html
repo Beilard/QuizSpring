@@ -132,7 +132,34 @@
 
         }
     </style>
-    <title>Team Creation</title>
+    <script>
+        // Set the date we're counting down to
+        var countDownDate = new Date(${game.phases[game.currentPhase].deadline}).getTime();
+
+        // Update the count down every 1 second
+        var x = setInterval(function () {
+
+            // Get today's date and time
+            var now = new Date().getTime();
+
+            // Find the distance between now and the count down date
+            var distance = countDownDate - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the result in the element with id="demo"
+            document.getElementById("demo").innerHTML = minutes + "m " + seconds + "s ";
+
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("demo").innerHTML = "EXPIRED";
+            }
+        }, 1000);
+    </script>
+    <title>Game Page</title>
 </head>
 <body>
 <div style="display: flex;
@@ -141,58 +168,40 @@
   justify-content: space-between;" class="flex">
     <div th:insert="header.html"/>
 
-    <div style="
-    display: flex;
-    justify-content: center;
-" class="container">
-        <div class="my-flex" style="
+    <div style=" height: 100%; display:  flex; flex-direction: column;" class="container">
 
-         width: 300px;
-         height: 300px;
-         display: flex;
-         flex-direction: row;
-         justify-content: center;">
-            <form th:action="@{/player/form-team}" method="get" style="margin-right: 30px">
-                <label for="teamName">
-                    <p th:text="#{team.create.create}">
-                    </p>
-                </label>
-                <input name="teamName" id="teamName" th:val type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-createTeam">
-                    <input type="submit" value="submit">
+        <div class="wrapper"
+             style="display: flex;justify-content: space-around; flex-direction:row; width: 100%; justify-items:center;">
+            <div class="content" style="width: 100%;  margin: 10px;">
+                <p style=" width: 80%; height: 100px; text-align:center;color: black;font-size: 20px;border: 1px solid #dcd8d8;background: #00000014;" th:text="${session.question.getBody()}">
+                <form style="text-align: start" th:action="@{/player/finish-phase}" method="get">
+                    <input type="hidden" name="command" value="player-finishPhase">
+                    <%--                    Field for answer --%>
+                    <input style="width: 60%;" type="text" name="givenAnswer">
+                    <input class="btn btn-success " type="submit" value="Submit">
+                </form>
+            </div>
+            <div class="content" style=" display: flex; margin: 10px; flex-direction: column ; width: 100%">
+                <div id="demo" class="timer" style=" color: white; width: 150px; height:50px;  background: blue;">
                 </div>
-            </form>
-
-            <form th:action="@{/player/join-team}" method="get">
-                <label for="teamNameForJoin">
-                    <p th:text="#{team.create.join}">
-                    </p>
-                </label>
-                <input name="teamNameForJoin" id="teamNameForJoin" type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-joinTeam">
-                    <input type="submit" value="submit">
+                    <form action="/game" style="margin-top: 10px; " th:if="${hintUsed == false}">
+                        <input type="hidden" name="command" value="player-provideHint">
+                        <input class="btn btn-warning" type="submit" value="Hint">
+                    </form>
+                <div style="background: rgba(251, 213, 217, 0.5);width: 100%;height: 50px;border: 1px solid #00000029;"
+                     class="hintBody" th:if="${hintUsed == true}" th:text="${session.question.getHint()}">
                 </div>
-            </form>
+            </div>
+            <div style="width: 20%"></div>
         </div>
-
-
     </div>
-
-
-    <div th:if="${nameTaken == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.taken}">
-        </p>
-    </div>
-
-    <div th:if="${nameDoesNotExist == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.exists}">
-        </p>
-    </div>
-
-    <div th:insert="footer.html"/>
 </div>
+
+
+<div th:insert="footer.html"/>
+
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"

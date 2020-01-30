@@ -132,67 +132,62 @@
 
         }
     </style>
-    <title>Team Creation</title>
+    <title>Game Page</title>
 </head>
 <body>
 <div style="display: flex;
   flex-direction: column;
   height: 100vh;
   justify-content: space-between;" class="flex">
-    <div th:insert="header.html"/>
+    <c:import url="header.jsp"/>
 
-    <div style="
-    display: flex;
-    justify-content: center;
-" class="container">
-        <div class="my-flex" style="
+    <div style=" height: 100%; display:  flex; flex-direction: column;" class="container">
 
-         width: 300px;
-         height: 300px;
-         display: flex;
-         flex-direction: row;
-         justify-content: center;">
-            <form th:action="@{/player/form-team}" method="get" style="margin-right: 30px">
-                <label for="teamName">
-                    <p th:text="#{team.create.create}">
-                    </p>
-                </label>
-                <input name="teamName" id="teamName" th:val type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-createTeam">
-                    <input type="submit" value="submit">
+        <div class="wrapper"
+             style="display: flex;justify-content: space-around; flex-direction:row; width: 100%; justify-items:center;">
+            <div class="content" style="width: 100%;  margin: 10px;">
+                <p style=" width: 80%; height: 100px; text-align:center;color: black;font-size: 20px;border: 1px solid #dcd8d8;background: #00000014;">
+                    ${reviewedQuestion.body}
+                <form style="text-align: start" action="/game">
+                <p th:text="#{review.given.answer}"></p> - <p th:text="param.reviewedPhase."/>
+                    <fmt:message key="review.given.answer"/> - ${reviewedPhase.givenAnswer}
+                    <fmt:message key="review.correct.answer"/> - ${reviewedQuestion.correctAnswer}
+                </form>
+            </div>
+            <div class="content" style=" display: flex; margin: 10px; flex-direction: column ; width: 100%">
+                <div id="demo" class="timer" style=" color: white; width: 150px; height:50px;  background: blue;">
                 </div>
-            </form>
 
-            <form th:action="@{/player/join-team}" method="get">
-                <label for="teamNameForJoin">
-                    <p th:text="#{team.create.join}">
-                    </p>
-                </label>
-                <input name="teamNameForJoin" id="teamNameForJoin" type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-joinTeam">
-                    <input type="submit" value="submit">
+                <c:if test="${hintUsed == false}">
+                    <fmt:message key="review.hint.used"/>
+                </c:if>
+                <div style="background: rgba(251, 213, 217, 0.5);width: 100%;height: 50px;border: 1px solid #00000029;"
+                     class="hintBody">
+                    <fmt:message key="review.start"/> - ${reviewedPhase.startTime}
+                    <fmt:message key="review.end"/> - ${reviewedPhase.endTime}
+                    <fmt:message key="review.deadline"/> - ${reviewedPhase.deadline}
                 </div>
-            </form>
+            </div>
+            <div style="width: 20%"></div>
         </div>
-
-
     </div>
-
-
-    <div th:if="${nameTaken == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.taken}">
-        </p>
-    </div>
-
-    <div th:if="${nameDoesNotExist == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.exists}">
-        </p>
-    </div>
-
-    <div th:insert="footer.html"/>
 </div>
+
+<form style="text-align: start" action="/game">
+    <input type="hidden" name="command" value="judge-rightAnswer">
+    <input class="btn btn-success " type="submit" value="Right">
+</form>
+
+<form style="text-align: start" action="/game">
+    <input type="hidden" name="command" value="judge-wrongAnswer">
+    <input class="btn btn-success " type="submit" value="Wrong">
+</form>
+
+
+<c:import url="footer.jsp"/>
+
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"

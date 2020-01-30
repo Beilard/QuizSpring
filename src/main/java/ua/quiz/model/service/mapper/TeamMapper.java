@@ -8,6 +8,7 @@ import java.util.Objects;
 
 @Component
 public class TeamMapper {
+
     public Team mapTeamEntityToTeam(TeamEntity teamEntity) {
         if (Objects.isNull(teamEntity)) {
             return null;

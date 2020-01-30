@@ -62,31 +62,25 @@
 <body>
 <div th:insert="header.html"/>
 <div class="bg-light border-right" id="sidebar-wrapper">
-    <div class="sidebar-heading"><fmt:message key="player.profile.header"/></div>
+    <div class="sidebar-heading" th:text="#{player.profile.header}"></div>
     <div class="list-group list-group-flush">
-        <c:if test="${user.getTeamId() == 0}">
-            <a th:if="${session.user.team == null}" th:href="@{/player/create-team}"
-               class="list-group-item list-group-item-action bg-light" th:text="#{player.createTeam}"></a>
-        </c:if>
-        <c:if test="${user.getTeamId() != 0}">
-            <a href="/game?command=player-checkTeam"
-               class="list-group-item list-group-item-action bg-light"><fmt:message
-                    key="player.checkTeam"/></a>
-        </c:if>
-        <c:if test="${user.getCaptain() == true}">
-            <a href="/game?command=player-configureGameForm"
-               class="list-group-item list-group-item-action bg-light"><fmt:message key="player.startGame"/></a>
-        </c:if>
-        <c:if test="${user.getRole().ordinal() == 1}">
-            <a href="/game?command=judge-viewAllGames&page=1"
-               class="list-group-item list-group-item-action bg-light"><fmt:message key="judge.viewAllGames"/></a>
-        </c:if>
+        <a th:if="${session.user.team == null}" th:href="@{/player/create-team}"
+           class="list-group-item list-group-item-action bg-light" th:text="#{player.createTeam}"></a>
+
+        <a th:if="${session.user.team != null}" th:href="@{/player/check-team}"
+           class="list-group-item list-group-item-action bg-light" th:text="#{player.checkTeam}"></a>
+
+        <a th:href="/player/start-game" th:if="${session.user.getIsCaptain() == true}"
+           class="list-group-item list-group-item-action bg-light" th:text="#{player.startGame}"></a>
+
+        <a href="/game?command=judge-viewAllGames&page=1" th:if="${session.user.getRole().ordinal() == 1}"
+           class="list-group-item list-group-item-action bg-light" th:text="#{judge.viewAllGames}"></a>
+
     </div>
 </div>
 <form action="#" style="margin-right: 30px">
     <label for="joinGameId">
-        <p>
-            <fmt:message key="profile.join.game"/>
+        <p th:text="#{profile.join.game}">
         </p>
     </label>
     <input name="joinGameId" id="joinGameId" type="text">
@@ -99,9 +93,15 @@
 <table class="table table-striped table-responsive-md btn-table">
     <thead>
     <tr>
-        <th><fmt:message key="profile.pagination.gameId"/></th>
-        <th><fmt:message key="profile.pagination.currentPhase"/></th>
-        <th><fmt:message key="profile.pagination.status"/></th>
+        <th>
+            <fmt:message key="profile.pagination.gameId"/>
+        </th>
+        <th>
+            <fmt:message key="profile.pagination.currentPhase"/>
+        </th>
+        <th>
+            <fmt:message key="profile.pagination.status"/>
+        </th>
 
     </tr>
     </thead>

@@ -132,7 +132,7 @@
 
         }
     </style>
-    <title>Team Creation</title>
+    <title>Statistics</title>
 </head>
 <body>
 <div style="display: flex;
@@ -141,54 +141,14 @@
   justify-content: space-between;" class="flex">
     <div th:insert="header.html"/>
 
-    <div style="
-    display: flex;
-    justify-content: center;
-" class="container">
-        <div class="my-flex" style="
+    <div style="background: red; " class="container">
 
-         width: 300px;
-         height: 300px;
-         display: flex;
-         flex-direction: row;
-         justify-content: center;">
-            <form th:action="@{/player/form-team}" method="get" style="margin-right: 30px">
-                <label for="teamName">
-                    <p th:text="#{team.create.create}">
-                    </p>
-                </label>
-                <input name="teamName" id="teamName" th:val type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-createTeam">
-                    <input type="submit" value="submit">
-                </div>
-            </form>
+        <p th:text="statistics.count"></p>
+        <p th:text="correctAnswersCount"></p> /
 
-            <form th:action="@{/player/join-team}" method="get">
-                <label for="teamNameForJoin">
-                    <p th:text="#{team.create.join}">
-                    </p>
-                </label>
-                <input name="teamNameForJoin" id="teamNameForJoin" type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-joinTeam">
-                    <input type="submit" value="submit">
-                </div>
-            </form>
-        </div>
+        <p th:text="numberOfQuestions"></p>
 
 
-    </div>
-
-
-    <div th:if="${nameTaken == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.taken}">
-        </p>
-    </div>
-
-    <div th:if="${nameDoesNotExist == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.exists}">
-        </p>
     </div>
 
     <div th:insert="footer.html"/>

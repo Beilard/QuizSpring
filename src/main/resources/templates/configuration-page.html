@@ -132,7 +132,7 @@
 
         }
     </style>
-    <title>Team Creation</title>
+    <title>Configuration</title>
 </head>
 <body>
 <div style="display: flex;
@@ -141,54 +141,27 @@
   justify-content: space-between;" class="flex">
     <div th:insert="header.html"/>
 
-    <div style="
-    display: flex;
-    justify-content: center;
-" class="container">
-        <div class="my-flex" style="
-
-         width: 300px;
-         height: 300px;
-         display: flex;
-         flex-direction: row;
-         justify-content: center;">
-            <form th:action="@{/player/form-team}" method="get" style="margin-right: 30px">
-                <label for="teamName">
-                    <p th:text="#{team.create.create}">
-                    </p>
-                </label>
-                <input name="teamName" id="teamName" th:val type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-createTeam">
-                    <input type="submit" value="submit">
-                </div>
-            </form>
-
-            <form th:action="@{/player/join-team}" method="get">
-                <label for="teamNameForJoin">
-                    <p th:text="#{team.create.join}">
-                    </p>
-                </label>
-                <input name="teamNameForJoin" id="teamNameForJoin" type="text">
-                <div style="margin-top:10px;text-align: center;width: 100%; ">
-                    <input type="hidden" name="command" value="player-joinTeam">
-                    <input type="submit" value="submit">
-                </div>
-            </form>
-        </div>
-
-
-    </div>
-
-
-    <div th:if="${nameTaken == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.taken}">
+    <div style="background: red; " class="container">
+        <p th:text="configuration.welcome">
         </p>
-    </div>
 
-    <div th:if="${nameDoesNotExist == true}">
-        <p style="color: darkred; font-size: 20px; text-align: center" th:text="#{team.create.exists}">
-        </p>
+        <form th:action="@{/player/start-game}" method="get">
+            <input type="hidden" name="command" value="player-startGame">
+            <p th:text="configuration.numberOfpage"></p>
+            <select class="form-control select-size" name="numberOfQuestions" id="numberOfQuestions">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+            </select>
+            <p th:text="configuration.timePerQuestion"></p>
+            <select class="form-control select-size" name="timePerQuestion" id="timePerQuestion">
+                <option value="60">60</option>
+                <option value="90">90</option>
+                <option value="120">120</option>
+            </select>
+            <input type="submit" value="Start">
+        </form>
+
     </div>
 
     <div th:insert="footer.html"/>

@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.quiz.model.dto.User;
 import ua.quiz.model.entity.UserEntity;
 import ua.quiz.model.exception.EmailAlreadyTakenException;
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userMapper.mapUserToUserEntity(user));
     }
 
+    @Transactional
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         if (email == null) {
