@@ -1,7 +1,6 @@
 package ua.quiz.model.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.List;

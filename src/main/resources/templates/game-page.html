@@ -184,7 +184,7 @@
             <div class="content" style=" display: flex; margin: 10px; flex-direction: column ; width: 100%">
                 <div id="demo" class="timer" style=" color: white; width: 150px; height:50px;  background: blue;">
                 </div>
-                    <form action="/game" style="margin-top: 10px; " th:if="${hintUsed == false}">
+                    <form th:action="@{/player/provide-hint}" method="get" style="margin-top: 10px; " th:if="${hintUsed == false}">
                         <input type="hidden" name="command" value="player-provideHint">
                         <input class="btn btn-warning" type="submit" value="Hint">
                     </form>

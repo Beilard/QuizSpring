@@ -1,13 +1,15 @@
 package ua.quiz.model.entity;
 
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Data
+
+@Getter
+@Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @Entity
 @Table(name = "team")

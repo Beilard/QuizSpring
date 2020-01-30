@@ -96,7 +96,7 @@ public class PlayerController {
             return "/player";
         }
 
-        return "check-team";
+        return "team-page";
     }
 
     @GetMapping("/change-captains")
@@ -138,7 +138,12 @@ public class PlayerController {
         final Game game = gameService.startGame(teamId, numberOfQuestions, timePerQuestion);
 
         session.setAttribute("game", game);
-        return "forward:/generatePhase";
+        return "forward:/player/generate-phase";
+    }
+
+    @GetMapping("/show-configuration")
+    public String showConfiguration() {
+        return "configuration-page";
     }
 
     @GetMapping("/generate-phase")
@@ -152,7 +157,7 @@ public class PlayerController {
         session.setAttribute("question", getQuestion(modifiedGame));
         model.addAttribute("hintUsed", false);
 
-        return "forward:/view-phase";
+        return "game-page";
     }
 
     @GetMapping("/finish-phase")
@@ -161,22 +166,23 @@ public class PlayerController {
         final Game game = (Game) session.getAttribute("game");
 
         if (givenAnswer == null) {
-            return "forward:/view-phase";
+            return "game-page";
         }
 
         final Integer currentPhase = game.getCurrentPhase();
 
-        phaseService.finishPhase(game.getPhases().get(currentPhase), givenAnswer);
+        Phase finishedPhase = phaseService.finishPhase(game.getPhases().get(currentPhase), givenAnswer);
 
+        game.getPhases().add(currentPhase, finishedPhase);
         game.setCurrentPhase(currentPhase + 1);
         gameService.updateGame(game);
 
         session.setAttribute("game", gameService.findById(game.getId()));
 
         if (currentPhase >= game.getNumberOfQuestions() - 1) {
-            return "forward:/finish-game";
+            return "forward:/player/finish-game";
         } else {
-            return "forward:/generate-phase";
+            return "forward:/player/generate-phase";
         }
     }
 

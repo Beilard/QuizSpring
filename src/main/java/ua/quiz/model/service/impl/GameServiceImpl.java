@@ -47,6 +47,7 @@ public class GameServiceImpl implements GameService {
             throw new IllegalArgumentException("Either teamId is null or number of question/time per question" +
                     " are less than 0 to start the game");
         }
+
         final Game game = gameBuilder(teamId, numberOfQuestions, timePerQuestion);
         final Long gameId = gameRepository.save(gameMapper.mapGameToGameEntity(game)).getId();
 
@@ -94,7 +95,7 @@ public class GameServiceImpl implements GameService {
             throw new IllegalArgumentException("Null id passed to find a game");
         }
         final Optional<GameEntity> foundGameEntity = gameRepository.findById(id);
-
+        foundGameEntity.get().setPhases(phaseRepository.findPhaseEntitiesByGameId(id));
         return gameMapper.mapGameEntityToGame(foundGameEntity.orElseThrow(EntityNotFoundException::new));
     }
 
@@ -216,6 +217,7 @@ public class GameServiceImpl implements GameService {
                 .numberOfQuestions(numberOfQuestions)
                 .timePerQuestion(timePerQuestion)
                 .teamId(teamId)
+                .currentPhase(0)
                 .phases(Collections.emptyList())
                 .status(Status.ONGOING)
                 .build();

@@ -145,7 +145,7 @@
         <p th:text="configuration.welcome">
         </p>
 
-        <form th:action="@{/player/start-game}" method="get">
+        <form th:action="@{/player/configure-game}" method="get">
             <input type="hidden" name="command" value="player-startGame">
             <p th:text="configuration.numberOfpage"></p>
             <select class="form-control select-size" name="numberOfQuestions" id="numberOfQuestions">

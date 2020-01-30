@@ -1,5 +1,7 @@
 package ua.quiz.model.service.mapper;
 
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Game;
 import ua.quiz.model.dto.Phase;
@@ -7,14 +9,17 @@ import ua.quiz.model.dto.Status;
 import ua.quiz.model.entity.GameEntity;
 import ua.quiz.model.entity.PhaseEntity;
 import ua.quiz.model.entity.StatusEntity;
+import ua.quiz.model.repository.TeamRepository;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class GameMapper {
-    private final PhaseMapper phaseMapper = new PhaseMapper();
+    private PhaseMapper phaseMapper;
+    private TeamRepository teamRepository;
 
     public Game mapGameEntityToGame(GameEntity gameEntity) {
         if (Objects.isNull(gameEntity)) {
@@ -45,6 +50,7 @@ public class GameMapper {
         entity.setCurrentPhase(game.getCurrentPhase());
         entity.setStatusEntity(StatusEntity.valueOf(game.getStatus().name()));
         entity.setPhases(mapPhaseToPhaseEntities(game.getPhases()));
+        entity.setTeam(teamRepository.findById(game.getTeamId()).orElseThrow(IllegalArgumentException::new));
 
         return entity;
     }

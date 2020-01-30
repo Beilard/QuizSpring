@@ -70,7 +70,7 @@
         <a th:if="${session.user.team != null}" th:href="@{/player/check-team}"
            class="list-group-item list-group-item-action bg-light" th:text="#{player.checkTeam}"></a>
 
-        <a th:href="/player/start-game" th:if="${session.user.getIsCaptain() == true}"
+        <a th:href="@{/player/show-configuration}" th:if="${session.user.getIsCaptain() == true}"
            class="list-group-item list-group-item-action bg-light" th:text="#{player.startGame}"></a>
 
         <a href="/game?command=judge-viewAllGames&page=1" th:if="${session.user.getRole().ordinal() == 1}"
