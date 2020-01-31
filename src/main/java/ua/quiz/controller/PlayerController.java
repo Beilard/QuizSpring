@@ -107,13 +107,13 @@ public class PlayerController {
             teamService.changeCaptain(userService.findByEmail(newCaptainEmail), user);
         } catch (EntityNotFoundException | IllegalArgumentException e) {
             log.info("User " + user + " tried to change captaincy with an invalid argument");
-            return "forward:/player";
+            return "player-page";
         }
 
         final User userWithPassword = userService.findByEmail(user.getEmail());
 
         session.setAttribute("user", removePassword(userWithPassword));
-        return "forward:/player";
+        return "player-page";
     }
 
     @GetMapping("/leave-team")
@@ -123,9 +123,11 @@ public class PlayerController {
             model.addAttribute("isCaptainText", true);
             return "team-page";
         }
-        User userWithPassword = userService.findByEmail(user.getEmail());
+        final User userWithPassword = userService.findByEmail(user.getEmail());
         teamService.leaveTeam(userWithPassword);
-        session.setAttribute("user", removePassword(userWithPassword));
+
+        final User updatedUser = userService.findByEmail(user.getEmail());
+        session.setAttribute("user", removePassword(updatedUser));
 
         return "player-page";
     }
