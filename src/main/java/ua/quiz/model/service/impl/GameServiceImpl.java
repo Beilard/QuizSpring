@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.quiz.model.dto.Game;
 import ua.quiz.model.dto.Phase;
@@ -100,12 +101,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<Game> findAll(Integer page, Integer rowCount) {
-        final PageRequest pageRequest = PageRequest.of(page, rowCount);
-        Page<GameEntity> entities = gameRepository.findAll(pageRequest);
+    public Page<Game> findAll(Pageable pageable) {
+        Page<GameEntity> entities = gameRepository.findAll(pageable);
 
-        return entities.isEmpty() ? Collections.emptyList() :
-                mapGameEntityListToGameList(entities);
+        return entities.isEmpty() ? null :
+                entities.map(gameMapper::mapGameEntityToGame);
     }
 
     @Override
@@ -144,16 +144,15 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<Game> findAllByTeamId(Long teamId, Integer page, Integer rowCount) {
+    public Page<Game> findAllByTeamId(Long teamId, Pageable pageable) {
         if (teamId == null) {
             log.warn("Null id passed to find games by team id");
             throw new IllegalArgumentException("Null id passed to find games by team id");
         }
-        final PageRequest pageRequest = PageRequest.of(page, rowCount);
-        Page<GameEntity> gamesOfTeam = gameRepository.findByTeamId(teamId, pageRequest);
+        Page<GameEntity> gamesOfTeam = gameRepository.findByTeamId(teamId, pageable);
 
-        return gamesOfTeam.isEmpty() ? Collections.emptyList() :
-                mapGameEntityListToGameList(gamesOfTeam);
+        return gamesOfTeam.isEmpty() ? null :
+                gamesOfTeam.map(gameMapper::mapGameEntityToGame);
     }
 
     private Game createGameWithPhases(int numberOfQuestions, Game game, Long gameId) {
@@ -221,12 +220,6 @@ public class GameServiceImpl implements GameService {
                 .phases(Collections.emptyList())
                 .status(Status.ONGOING)
                 .build();
-    }
-
-    private List<Game> mapGameEntityListToGameList(Page<GameEntity> gameEntities) {
-        return gameEntities.stream()
-                .map(gameMapper::mapGameEntityToGame)
-                .collect(Collectors.toList());
     }
 
     private Game changeStatusToPending(Game game) {

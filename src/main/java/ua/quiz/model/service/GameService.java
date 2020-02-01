@@ -1,5 +1,7 @@
 package ua.quiz.model.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ua.quiz.model.dto.Game;
 
 import java.util.List;
@@ -19,9 +21,9 @@ public interface GameService {
 
     Long getCorrectAnswersCount(Game game);
 
-    List<Game> findAll(Integer page, Integer rowCount);
+    Page<Game> findAll(Pageable pageable);
 
-    List<Game> findAllByTeamId(Long teamId, Integer page, Integer rowCount);
+    Page<Game> findAllByTeamId(Long teamId, Pageable pageable);
 
     Long countAllEntries();
 

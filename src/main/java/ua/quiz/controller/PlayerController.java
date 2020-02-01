@@ -251,7 +251,7 @@ public class PlayerController {
         session.setAttribute("question", getQuestion(foundGame));
         model.addAttribute("hintUsed", getQuestion(foundGame).getHint());
 
-        return "/game?command=player-viewPhase";
+        return "game-page";
     }
 
 

@@ -3,6 +3,10 @@ package ua.quiz.controller;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,12 +22,14 @@ import ua.quiz.model.service.GameService;
 import ua.quiz.model.service.PhaseService;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Log4j
 @Controller
 @RequestMapping("/judge")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class JudgeController {
+    private static final int DEFAULT_SIZE_PAGE = 10;
 
     private GameService gameService;
     private PhaseService phaseService;
@@ -107,10 +113,12 @@ public class JudgeController {
 
     }
 
-    //TODO: pagination
     @GetMapping("/view-all-games")
-    public String viewAllGames(Model model, HttpSession session) {
-        return null;
+    public String viewAllGames(@PageableDefault(size = DEFAULT_SIZE_PAGE, sort = {"game_id"},
+            direction = Sort.Direction.DESC) Pageable pageable, Model model, HttpSession session) {
+        Page<Game> allGames = gameService.findAll(pageable);
+        model.addAttribute("allGames", allGames);
+        return "view-all-games";
     }
 
 
