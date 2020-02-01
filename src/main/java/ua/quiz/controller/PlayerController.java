@@ -3,6 +3,10 @@ package ua.quiz.controller;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +29,8 @@ import java.util.List;
 @RequestMapping("/player")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PlayerController {
+    private static final int DEFAULT_SIZE_PAGE = 10;
+
     private UserService userService;
     private TeamService teamService;
     private GameService gameService;
@@ -254,6 +260,16 @@ public class PlayerController {
         return "game-page";
     }
 
+    @GetMapping("/show-team-games")
+    public String viewAllGames(@PageableDefault(size = DEFAULT_SIZE_PAGE, sort = {"id"},
+            direction = Sort.Direction.DESC) Pageable pageable, Model model, HttpSession session) {
+        final User user = (User) session.getAttribute("user");
+
+        Page<Game> allTeamGames = gameService.findAllByTeamId(user.getTeam().getId(), pageable);
+
+        model.addAttribute("allTeamGames", allTeamGames);
+        return "view-all-team-games";
+    }
 
     private User removePassword(User user) {
         return user.toBuilder()

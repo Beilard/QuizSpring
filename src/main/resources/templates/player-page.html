@@ -70,69 +70,19 @@
         <a th:if="${session.user.team != null}" th:href="@{/player/check-team}"
            class="list-group-item list-group-item-action bg-light" th:text="#{player.checkTeam}"></a>
 
+        <a th:if="${session.user.team != null}" th:href="@{/player/show-team-games}"
+           class="list-group-item list-group-item-action bg-light" th:text="#{player.view.team.games}"></a>
+
         <a th:href="@{/player/show-configuration}" th:if="${session.user.getIsCaptain() == true}"
            class="list-group-item list-group-item-action bg-light" th:text="#{player.startGame}"></a>
 
-        <a href="/game?command=judge-viewAllGames&page=1" th:if="${session.user.getRole().name() == 'JUDGE'}"
+        <a th:href="@{/judge/view-all-games}" th:if="${session.user.getRole().name() == 'JUDGE'}"
            class="list-group-item list-group-item-action bg-light" th:text="#{judge.viewAllGames}"></a>
 
     </div>
 </div>
-<form action="#" style="margin-right: 30px">
-    <label for="joinGameId">
-        <p th:text="#{profile.join.game}">
-        </p>
-    </label>
-    <input name="joinGameId" id="joinGameId" type="text">
-    <div style="margin-top:10px;text-align: center;width: 100%; ">
-        <input type="hidden" name="command" value="player-joinGame">
-        <input type="submit" value="Join">
-    </div>
-</form>
 
-<table class="table table-striped table-responsive-md btn-table">
-    <thead>
-    <tr>
-        <th>
-            <fmt:message key="profile.pagination.gameId"/>
-        </th>
-        <th>
-            <fmt:message key="profile.pagination.currentPhase"/>
-        </th>
-        <th>
-            <fmt:message key="profile.pagination.status"/>
-        </th>
 
-    </tr>
-    </thead>
-
-    <tbody>
-    <c:forEach items="${allGamesOfTeam}" var="game">
-
-        <tr>
-            <td> ${game.id}</td>
-            <td> ${game.currentPhase}</td>
-            <td> ${game.status}</td>
-        </tr>
-    </c:forEach>
-    </tbody>
-</table>
-<table cellpadding="5" cellspacing="5">
-    <tr>
-        <c:forEach begin="1" end="${countOfElements}" var="i">
-            <c:choose>
-                <c:when test="${currentPage eq i}">
-                    <td><p class="btn btn-primary">${i}</p></td>
-                </c:when>
-                <c:otherwise>
-                    <td><a class="btn btn-outline-success " style="color: black;"
-                           href="/game?command=player-profilePageForm&page=${i}">${i}</a>
-                    </td>
-                </c:otherwise>
-            </c:choose>
-        </c:forEach>
-    </tr>
-</table>
 
 <div th:insert="footer.html"/>
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"

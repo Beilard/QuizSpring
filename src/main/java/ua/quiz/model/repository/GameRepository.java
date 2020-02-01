@@ -8,6 +8,8 @@ import ua.quiz.model.entity.GameEntity;
 
 @Repository("gameRepository")
 public interface GameRepository extends JpaRepository<GameEntity, Long> {
+    Page<GameEntity> findAll(Pageable pageable);
+
     Page<GameEntity> findByTeamId(Long teamId, Pageable page);
 
     Long countAllByTeamId(Long teamId);

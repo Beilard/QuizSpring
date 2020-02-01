@@ -37,8 +37,8 @@ public class JudgeController {
     @GetMapping
     public String main(HttpSession session) {
         final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         session.setAttribute("user", user);
+
 
         return "player-page";
     }
@@ -114,9 +114,10 @@ public class JudgeController {
     }
 
     @GetMapping("/view-all-games")
-    public String viewAllGames(@PageableDefault(size = DEFAULT_SIZE_PAGE, sort = {"game_id"},
+    public String viewAllGames(@PageableDefault(size = DEFAULT_SIZE_PAGE, sort = {"id"},
             direction = Sort.Direction.DESC) Pageable pageable, Model model, HttpSession session) {
         Page<Game> allGames = gameService.findAll(pageable);
+
         model.addAttribute("allGames", allGames);
         return "view-all-games";
     }
