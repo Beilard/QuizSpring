@@ -29,45 +29,48 @@ public class PhaseServiceImpl implements PhaseService {
     private final PhaseMapper phaseMapper;
     private final QuestionMapper questionMapper;
 
-
     @Override
-    public List<Phase> generatePhaseList(Game game, Integer numberOfPhases) {
+    public void generatePhaseList(Game game, Integer numberOfPhases) {
+        if (game == null || numberOfPhases == null || numberOfPhases < 1) {
+            log.warn("Game or number of phases passed to " +
+                    "generate list is null or number of phases is less than 1");
+            throw new IllegalArgumentException("Game or number of phases passed to " +
+                    "generate list is null or number of phases is less than 1");
+        }
+
         Long amountOfQuestionsInDb = questionRepository.count();
         if (numberOfPhases > amountOfQuestionsInDb) {
             log.warn("Amount of questions requested is bigger than the count in DB");
             throw new IllegalArgumentException("Amount of questions requested is bigger than the count in DB");
         }
-        saveGeneratedPhases(game, numberOfPhases, amountOfQuestionsInDb);
+        List<Long> generatedIds = generateIds(numberOfPhases, amountOfQuestionsInDb);
 
-        return phaseRepository.findPhaseEntitiesByGameId(game.getId())
-                .stream()
-                .map(phaseMapper::mapPhaseEntityToPhase)
-                .collect(Collectors.toList());
+        for (int i = 0; i < numberOfPhases; i++) {
+            final Phase phase = generatePhase(game, generatedIds, i);
+
+            phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(phase));
+        }
     }
 
     @Override
-    public Phase initiatePhase(Phase phase, Integer timePerQuestion) {
-        if (phase == null) {
+    public void initiatePhase(Phase phase, Integer timePerQuestion) {
+        if (phase == null || timePerQuestion == null) {
             log.warn("Passed phase is null");
             throw new IllegalArgumentException("Passed phase is null");
         }
         Phase initiatedPhase = setDeadlines(phase, timePerQuestion);
 
         phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(initiatedPhase));
-
-        return initiatedPhase;
     }
 
     @Override
-    public Phase finishPhase(Phase phase, String givenAnswer) {
+    public void finishPhase(Phase phase, String givenAnswer) {
         if (phase == null) {
             log.warn("Passed phase is null");
             throw new IllegalArgumentException("Passed phase is null");
         }
         final Phase finishedPhase = setEndTimeAndAnswer(phase, givenAnswer);
         phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(finishedPhase));
-
-        return finishedPhase;
     }
 
     @Override
@@ -94,15 +97,13 @@ public class PhaseServiceImpl implements PhaseService {
     }
 
     @Override
-    public Phase useHint(Phase phase) {
+    public void useHint(Phase phase) {
         if (phase == null) {
             log.warn("Passed phase is null");
             throw new IllegalArgumentException("Passed phase is null");
         }
         Phase phaseWithHint = enableHint(phase);
         phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(phaseWithHint));
-
-        return phaseWithHint;
     }
 
     private Phase setDeadlines(Phase phase, Integer timePerQuestion) {
@@ -131,16 +132,6 @@ public class PhaseServiceImpl implements PhaseService {
         return phase.toBuilder()
                 .isCorrect(true)
                 .build();
-    }
-
-    private void saveGeneratedPhases(Game game, Integer numberOfPhases, Long amountOfQuestionsInDb) {
-        List<Long> generatedIds = generateIds(numberOfPhases, amountOfQuestionsInDb);
-
-        for (int i = 0; i < numberOfPhases; i++) {
-            final Phase phase = generatePhase(game, generatedIds, i);
-
-            phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(phase));
-        }
     }
 
     private Phase generatePhase(Game game, List<Long> generatedIds, int i) {

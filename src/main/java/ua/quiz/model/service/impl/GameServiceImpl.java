@@ -33,7 +33,6 @@ public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
     private final PhaseRepository phaseRepository;
-
     private final GameMapper gameMapper;
 
 
