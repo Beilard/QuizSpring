@@ -39,12 +39,11 @@ public class JudgeController {
         final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         session.setAttribute("user", user);
 
-
         return "player-page";
     }
 
     @GetMapping("/start-review")
-    public String checkTeam(Model model, HttpSession session,
+    public String checkTeam(HttpSession session,
                             @RequestParam(value = "gameIdToReview") Long gameIdToReview) {
         Game gamePreparedForReview;
 
@@ -52,42 +51,45 @@ public class JudgeController {
             gamePreparedForReview = gameService.startReview(gameService.findById(gameIdToReview));
         } catch (EntityNotFoundException | IllegalArgumentException e) {
             log.info("Game ID passed wasn't found");
-            return "/game?command=judge-viewAllGamesForm";
+            return "forward:/judge/view-all-games";
         }
         session.setAttribute("gameForReview", gamePreparedForReview);
 
-        return "forward:/prepare-phase";
+        return "forward:/judge/prepare-phase";
     }
 
     @GetMapping("/prepare-phase")
-    public String preparePhase(Model model, HttpSession session) {
+    public String preparePhase(HttpSession session, Model model) {
         final Game game = (Game) session.getAttribute("gameForReview");
-        session.setAttribute("reviewedQuestion", getQuestion(game));
-        session.setAttribute("reviewedPhase", getCurrentPhase(game));
+        final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
+
+        model.addAttribute("reviewedQuestion", getQuestion(game, phases));
+        model.addAttribute("reviewedPhase", getCurrentPhase(game, phases));
 
         return "review-page";
     }
 
     @GetMapping("/right-answer")
-    public String rightAnswer(Model model, HttpSession session) {
+    public String rightAnswer(HttpSession session) {
         Game game = (Game) session.getAttribute("gameForReview");
         final Integer currentPhase = game.getCurrentPhase();
+        final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        phaseService.reviewPhasePositively(game.getPhases().get(currentPhase));
+        phaseService.reviewPhasePositively(phases.get(currentPhase));
 
         game.setCurrentPhase(currentPhase + 1);
         gameService.updateGame(game);
 
         session.setAttribute("gameForReview", gameService.findById(game.getId()));
         if (currentPhase >= game.getNumberOfQuestions() - 1) {
-            return "forward:/finish-review";
+            return "forward:/judge/finish-review";
         } else {
-            return "forward:/prepare-phase";
+            return "forward:/judge/prepare-phase";
         }
     }
 
     @GetMapping("/wrong-answer")
-    public String wrongAnswer(Model model, HttpSession session) {
+    public String wrongAnswer(HttpSession session) {
         Game game = (Game) session.getAttribute("gameForReview");
         final Integer currentPhase = game.getCurrentPhase();
 
@@ -96,14 +98,14 @@ public class JudgeController {
 
         session.setAttribute("gameForReview", gameService.findById(game.getId()));
         if (currentPhase >= game.getNumberOfQuestions() - 1) {
-            return "forward:/finish-review";
+            return "forward:/judge/finish-review";
         } else {
-            return "forward:/prepare-phase";
+            return "forward:/judge/prepare-phase";
         }
     }
 
     @GetMapping("/finish-review")
-    public String finishReview(Model model, HttpSession session) {
+    public String finishReview(HttpSession session) {
         final Game reviewedGame = (Game) session.getAttribute("gameForReview");
 
         gameService.finishReview(reviewedGame);
@@ -122,12 +124,11 @@ public class JudgeController {
         return "view-all-games";
     }
 
-
-    private Phase getCurrentPhase(Game game) {
-        return game.getPhases().get(game.getCurrentPhase());
+    private Phase getCurrentPhase(Game game, List<Phase> phases) {
+        return phases.get(game.getCurrentPhase());
     }
 
-    private Question getQuestion(Game game) {
-        return getCurrentPhase(game).getQuestion();
+    private Question getQuestion(Game game, List<Phase> phases) {
+        return getCurrentPhase(game, phases).getQuestion();
     }
 }

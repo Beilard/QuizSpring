@@ -149,7 +149,7 @@
                 <p style=" width: 80%; height: 100px; text-align:center;color: black;font-size: 20px;border: 1px solid #dcd8d8;background: #00000014;">
                     ${reviewedQuestion.body}
                 <form style="text-align: start" action="/game">
-                <p th:text="#{review.given.answer}"></p> - <p th:text="param.reviewedPhase."/>
+                <p th:text="#{review.given.answer}"></p> - <p th:text="${reviewedPhase.givenAnswer}"/>
                     <fmt:message key="review.given.answer"/> - ${reviewedPhase.givenAnswer}
                     <fmt:message key="review.correct.answer"/> - ${reviewedQuestion.correctAnswer}
                 </form>

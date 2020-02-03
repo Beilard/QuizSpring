@@ -7,9 +7,7 @@ import javax.persistence.*;
 import java.util.List;
 
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @Entity
 @Table(name = "team")

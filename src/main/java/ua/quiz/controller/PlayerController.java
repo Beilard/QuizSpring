@@ -91,7 +91,7 @@ public class PlayerController {
 
 
     @GetMapping("/check-team")
-    public String checkTeam(Model model, HttpSession session) {
+    public String checkTeam(HttpSession session) {
         final User user = (User) session.getAttribute("user");
 
         try {
@@ -106,7 +106,7 @@ public class PlayerController {
     }
 
     @GetMapping("/change-captains")
-    public String changeCaptains(Model model, HttpSession session,
+    public String changeCaptains(HttpSession session,
                                  @RequestParam(name = "newCaptainEmail") String newCaptainEmail) {
         final User user = (User) session.getAttribute("user");
         try {
@@ -142,8 +142,9 @@ public class PlayerController {
     public String configureGame(Model model, HttpSession session,
                                 @RequestParam(value = "numberOfQuestions", defaultValue = "10") Integer numberOfQuestions,
                                 @RequestParam(value = "timePerQuestion", defaultValue = "60") Integer timePerQuestion) {
-        final Long teamId = ((User) (session.getAttribute("user"))).getTeam().getId();
-        final Game game = gameService.startGame(teamId, numberOfQuestions, timePerQuestion);
+        final Team userTeam = ((User) (session.getAttribute("user"))).getTeam();
+        final Game game = gameService.startGame(userTeam, numberOfQuestions, timePerQuestion);
+        phaseService.generatePhaseList(game, numberOfQuestions);
 
         session.setAttribute("game", game);
         return "forward:/player/generate-phase";
@@ -157,12 +158,13 @@ public class PlayerController {
     @GetMapping("/generate-phase")
     public String generatePhase(Model model, HttpSession session) {
         final Game game = (Game) session.getAttribute("game");
+        final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        final Phase currentPhase = game.getPhases().get(game.getCurrentPhase());
+        final Phase currentPhase = phases.get(game.getCurrentPhase());
         phaseService.initiatePhase(currentPhase, game.getTimePerQuestion());
         Game modifiedGame = gameService.findById(game.getId());
         session.setAttribute("game", modifiedGame);
-        session.setAttribute("question", getQuestion(modifiedGame));
+        session.setAttribute("question", getQuestion(game, phases));
         model.addAttribute("hintUsed", false);
 
         return "game-page";
@@ -179,9 +181,10 @@ public class PlayerController {
 
         final Integer currentPhase = game.getCurrentPhase();
 
-        Phase finishedPhase = phaseService.finishPhase(game.getPhases().get(currentPhase), givenAnswer);
+        final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        game.getPhases().add(currentPhase, finishedPhase);
+        phaseService.finishPhase(phases.get(currentPhase), givenAnswer);
+
         game.setCurrentPhase(currentPhase + 1);
         gameService.updateGame(game);
 
@@ -205,8 +208,9 @@ public class PlayerController {
     @GetMapping("provide-hint")
     public String provideHint(Model model, HttpSession session) {
         final Game game = (Game) session.getAttribute("game");
+        final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        phaseService.useHint(game.getPhases().get(game.getCurrentPhase()));
+        phaseService.useHint(phases.get(game.getCurrentPhase()));
 
         session.setAttribute("game", gameService.findById(game.getId()));
         model.addAttribute("hintUsed", true);
@@ -249,13 +253,15 @@ public class PlayerController {
             return "player-page";
         }
 
-        if (!foundGame.getTeamId().equals(user.getTeam().getId())) {
+        if (!foundGame.getTeam().getId().equals(user.getTeam().getId())) {
             log.info("User tried to join not his team's game. User ID: " + user.getId());
             return "player-page";
         }
+
+        final List<Phase> phases = phaseService.findPhasesByGameId(foundGame.getId());
         session.setAttribute("game", foundGame);
-        session.setAttribute("question", getQuestion(foundGame));
-        model.addAttribute("hintUsed", getQuestion(foundGame).getHint());
+        session.setAttribute("question", getQuestion(foundGame, phases));
+        model.addAttribute("hintUsed", getQuestion(foundGame, phases).getHint());
 
         return "game-page";
     }
@@ -277,7 +283,7 @@ public class PlayerController {
                 .build();
     }
 
-    private Question getQuestion(Game modifiedGame) {
-        return modifiedGame.getPhases().get(modifiedGame.getCurrentPhase()).getQuestion();
+    private Question getQuestion(Game game, List<Phase> phases) {
+        return phases.get(game.getCurrentPhase()).getQuestion();
     }
 }

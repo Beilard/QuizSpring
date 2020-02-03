@@ -152,8 +152,8 @@
         </tr>
         <tr th:each="game:${allTeamGames.content}">
             <th th:text="${game.id}"></th>
-            <th th:text="${game.teamId}"></th>
             <th th:text="${game.currentPhase}"></th>
+            <th th:text="${game.status}"></th>
 
         </tr>
     </table>

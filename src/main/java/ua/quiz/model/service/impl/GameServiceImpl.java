@@ -7,11 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.quiz.model.dto.Game;
-import ua.quiz.model.dto.Phase;
-import ua.quiz.model.dto.Question;
-import ua.quiz.model.dto.Status;
+import ua.quiz.model.dto.*;
 import ua.quiz.model.entity.GameEntity;
+import ua.quiz.model.entity.PhaseEntity;
 import ua.quiz.model.exception.EntityNotFoundException;
 import ua.quiz.model.repository.GameRepository;
 import ua.quiz.model.repository.PhaseRepository;
@@ -35,24 +33,23 @@ public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
     private final PhaseRepository phaseRepository;
-    private final QuestionRepository questionRepository;
+
     private final GameMapper gameMapper;
-    private final PhaseMapper phaseMapper;
-    private final QuestionMapper questionMapper;
+
 
     @Override
-    public Game startGame(Long teamId, int numberOfQuestions, int timePerQuestion) {
-        if (teamId == null || numberOfQuestions <= 0 || timePerQuestion <= 0) {
-            log.warn("Either teamId is null or number of question/" +
+    public Game startGame(Team team, int numberOfQuestions, int timePerQuestion) {
+        if (team == null || numberOfQuestions <= 0 || timePerQuestion <= 0) {
+            log.warn("Either team is null or number of question/" +
                     "time per question are less than 0 to start the game");
-            throw new IllegalArgumentException("Either teamId is null or number of question/time per question" +
+            throw new IllegalArgumentException("Either team is null or number of question/time per question" +
                     " are less than 0 to start the game");
         }
 
-        final Game game = gameBuilder(teamId, numberOfQuestions, timePerQuestion);
-        final Long gameId = gameRepository.save(gameMapper.mapGameToGameEntity(game)).getId();
+        final Game game = gameBuilder(team, numberOfQuestions, timePerQuestion);
+        final GameEntity entityWithId = gameRepository.save(gameMapper.mapGameToGameEntity(game));
 
-        return createGameWithPhases(numberOfQuestions, game, gameId);
+        return gameMapper.mapGameEntityToGame(entityWithId);
     }
 
     @Override
@@ -96,7 +93,6 @@ public class GameServiceImpl implements GameService {
             throw new IllegalArgumentException("Null id passed to find a game");
         }
         final Optional<GameEntity> foundGameEntity = gameRepository.findById(id);
-        foundGameEntity.get().setPhases(phaseRepository.findPhaseEntitiesByGameId(id));
         return gameMapper.mapGameEntityToGame(foundGameEntity.orElseThrow(EntityNotFoundException::new));
     }
 
@@ -109,36 +105,24 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Long countAllEntries() {
-        return gameRepository.count();
-    }
-
-    @Override
-    public Long countAllByTeamId(Long teamId) {
-        if (teamId == null) {
-            log.warn("Null teamId passed to count games");
-            throw new IllegalArgumentException("Null teamId passed to count games");
-        }
-        return gameRepository.countAllByTeamId(teamId);
-    }
-
-    @Override
     public Long getCorrectAnswersCount(Game game) {
         if (game == null) {
             log.warn("Null id passed to get correct answers from the game");
             throw new IllegalArgumentException("Null id passed to get correct answers from the game");
         }
-        return game.getPhases()
+
+        List<PhaseEntity> phaseEntitiesByGameId = phaseRepository.findPhaseEntitiesByGameId(game.getId());
+        return phaseEntitiesByGameId
                 .stream()
-                .filter(Phase::getIsCorrect)
+                .filter(PhaseEntity::getIsCorrect)
                 .count();
     }
 
     @Override
     public void updateGame(Game game) {
         if (game == null) {
-            log.warn("Null id passed to update a game");
-            throw new IllegalArgumentException("Null id passed to update a game");
+            log.warn("Null game passed to update a game");
+            throw new IllegalArgumentException("Null game passed to update a game");
         }
         gameRepository.save(gameMapper.mapGameToGameEntity(game));
     }
@@ -155,69 +139,12 @@ public class GameServiceImpl implements GameService {
                 gamesOfTeam.map(gameMapper::mapGameEntityToGame);
     }
 
-    private Game createGameWithPhases(int numberOfQuestions, Game game, Long gameId) {
-        return game.toBuilder()
-                .id(gameId)
-                .currentPhase(0)
-                .phases(returnPhaseList(gameId, numberOfQuestions))
-                .build();
-    }
-
-    private List<Phase> returnPhaseList(Long gameId, Integer numberOfPhases) {
-        Long amountOfQuestionsInDb = questionRepository.count();
-        if (numberOfPhases > amountOfQuestionsInDb) {
-            log.warn("Amount of questions requested is bigger than the count in DB");
-            throw new IllegalArgumentException("Amount of questions requested is bigger than the count in DB");
-        }
-        saveGeneratedPhases(gameId, numberOfPhases, amountOfQuestionsInDb);
-
-        return phaseRepository.findPhaseEntitiesByGameId(gameId)
-                .stream()
-                .map(phaseMapper::mapPhaseEntityToPhase)
-                .collect(Collectors.toList());
-    }
-
-    private void saveGeneratedPhases(Long gameId, Integer numberOfPhases, Long amountOfQuestionsInDb) {
-        List<Long> generatedIds = generateIds(numberOfPhases, amountOfQuestionsInDb);
-
-        for (int i = 0; i < numberOfPhases; i++) {
-            final Phase phase = generatePhase(gameId, generatedIds, i);
-
-            phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(phase));
-        }
-    }
-
-    private Phase generatePhase(Long gameId, List<Long> generatedIds, int i) {
-        final Question question = questionRepository.findById(generatedIds.get(i))
-                .map(questionMapper::mapQuestionEntityToQuestion)
-                .orElseThrow(EntityNotFoundException::new);
-
-        return Phase.builder()
-                .gameId(gameId)
-                .startTime(LocalDateTime.now())
-                .deadline(LocalDateTime.now())
-                .endTime(LocalDateTime.now())
-                .question(question)
-                .build();
-    }
-
-    private List<Long> generateIds(Integer numberOfPhases, Long amountOfQuestionsInDb) {
-        final Random random = new Random();
-        return random
-                .longs(1, amountOfQuestionsInDb)
-                .distinct()
-                .limit(numberOfPhases)
-                .boxed()
-                .collect(Collectors.toList());
-    }
-
-    private Game gameBuilder(Long teamId, int numberOfQuestions, int timePerQuestion) {
+    private Game gameBuilder(Team team, int numberOfQuestions, int timePerQuestion) {
         return Game.builder()
                 .numberOfQuestions(numberOfQuestions)
                 .timePerQuestion(timePerQuestion)
-                .teamId(teamId)
+                .team(team)
                 .currentPhase(0)
-                .phases(Collections.emptyList())
                 .status(Status.ONGOING)
                 .build();
     }

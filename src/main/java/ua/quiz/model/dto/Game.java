@@ -20,9 +20,8 @@ public class Game {
     private Integer currentPhase;
 
     @NotEmpty(message = "Please, provide a teamId")
-    private Long teamId;
+    private Team team;
 
     @NotEmpty(message = "Please, provide status")
     private Status status;
-    private List<Phase> phases;
 }

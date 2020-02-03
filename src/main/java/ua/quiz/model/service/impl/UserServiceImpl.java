@@ -65,7 +65,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.mapUserEntityToUser(entity.get());
     }
 
-
     @Override
     public List<User> findByTeamId(Long teamId) {
         if (teamId == null) {

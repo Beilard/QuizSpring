@@ -21,8 +21,8 @@ public class Phase {
     private Boolean isCorrect;
     private String givenAnswer;
 
-    @NotEmpty(message = "Please, provide a game Id")
-    private Long gameId;
+    @NotEmpty(message = "Please, provide a game")
+    private Game game;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private LocalDateTime deadline;
