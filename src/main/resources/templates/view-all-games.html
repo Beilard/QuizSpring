@@ -153,13 +153,13 @@
     <table class="table table-striped">
         <tr>
             <th th:text="#{profile.pagination.gameId}"></th>
-            <th th:text="#{profile.pagination.teamId}"></th>
+            <th th:text="#{profile.pagination.teamName}"></th>
             <th th:text="#{profile.pagination.currentPhase}"></th>
             <th th:text="#{profile.pagination.status}"></th>
         </tr>
         <tr th:each="game:${allGames.content}">
             <th th:text="${game.id}"></th>
-            <th th:text="${game.teamId}"></th>
+            <th th:text="${game.team.teamName}"></th>
             <th th:text="${game.currentPhase}"></th>
             <th th:text="${game.status}"></th>
         </tr>

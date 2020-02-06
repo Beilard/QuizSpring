@@ -22,7 +22,7 @@ public class PhaseMapper {
                 .id(phaseEntity.getId())
                 .question(questionMapper.mapQuestionEntityToQuestion(phaseEntity.getQuestion()))
                 .startTime(phaseEntity.getStartTime())
-                .endTime(phaseEntity.getStartTime())
+                .endTime(phaseEntity.getEndTime())
                 .deadline(phaseEntity.getDeadline())
                 .hintUsed(phaseEntity.getHintUsed())
                 .isCorrect(phaseEntity.getIsCorrect())

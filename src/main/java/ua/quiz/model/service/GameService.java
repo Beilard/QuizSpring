@@ -7,7 +7,8 @@ import ua.quiz.model.dto.Team;
 
 import java.util.List;
 
-public interface GameService {
+public interface
+GameService {
     Game startGame(Team team, int numberOfQuestions, int timePerQuestion);
 
     void finishGame(Game game);

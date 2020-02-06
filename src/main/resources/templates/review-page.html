@@ -132,59 +132,59 @@
 
         }
     </style>
-    <title>Game Page</title>
+    <title>Review Page</title>
 </head>
 <body>
 <div style="display: flex;
   flex-direction: column;
   height: 100vh;
   justify-content: space-between;" class="flex">
-    <c:import url="header.jsp"/>
+    <div th:insert="header.html"/>
 
-    <div style=" height: 100%; display:  flex; flex-direction: column;" class="container">
+
+    <div style=" display:  flex; flex-direction: column;" class="container">
 
         <div class="wrapper"
              style="display: flex;justify-content: space-around; flex-direction:row; width: 100%; justify-items:center;">
             <div class="content" style="width: 100%;  margin: 10px;">
-                <p style=" width: 80%; height: 100px; text-align:center;color: black;font-size: 20px;border: 1px solid #dcd8d8;background: #00000014;">
-                    ${reviewedQuestion.body}
-                <form style="text-align: start" action="/game">
-                <p th:text="#{review.given.answer}"></p> - <p th:text="${reviewedPhase.givenAnswer}"/>
-                    <fmt:message key="review.given.answer"/> - ${reviewedPhase.givenAnswer}
-                    <fmt:message key="review.correct.answer"/> - ${reviewedQuestion.correctAnswer}
+                <p th:text="${reviewedQuestion.body}"
+                   style=" width: 80%; height: 100px; text-align:center;color: black;font-size: 20px;border: 1px solid #dcd8d8;background: #00000014;">
+                <form style=" stext-align: start;/* background: #ffa5001f; */color: #007bff;font-size: 18px;"
+                      action="/game">
+                    <span th:text="#{review.given.answer}"></span> <b th:text="${reviewedPhase.givenAnswer}"/>
+                    <span th:text="#{review.correct.answer}"></span> <b th:text="${reviewedQuestion.correctAnswer}"/>
                 </form>
+
+                <div class="flex" style="display: flex;">
+                    <form style="text-align: start" th:action="@{/judge/right-answer}">
+                        <input type="hidden" name="command" value="judge-rightAnswer">
+                        <input class="btn btn-success " type="submit" th:value="#{review.right}">
+                    </form>
+                    <form style="text-align: end; margin-left: 20px;" th:action="@{/judge/wrong-answer}">
+                        <input type="hidden" name="command" value="judge-wrongAnswer">
+                        <input class="btn btn-success " type="submit" th:value="#{review.wrong}">
+                    </form>
+                </div>
             </div>
             <div class="content" style=" display: flex; margin: 10px; flex-direction: column ; width: 100%">
                 <div id="demo" class="timer" style=" color: white; width: 150px; height:50px;  background: blue;">
                 </div>
-
-                <c:if test="${hintUsed == false}">
-                    <fmt:message key="review.hint.used"/>
-                </c:if>
-                <div style="background: rgba(251, 213, 217, 0.5);width: 100%;height: 50px;border: 1px solid #00000029;"
+                <div th:if="${param.hintUsed == true}">
+                    <span th:text="#{review.hint.used}"/>
+                </div>
+                <div style="background: rgba(58, 146, 255, 0.35);width: 100%; font-style:oblique; border: 1px solid #00000029;"
                      class="hintBody">
-                    <fmt:message key="review.start"/> - ${reviewedPhase.startTime}
-                    <fmt:message key="review.end"/> - ${reviewedPhase.endTime}
-                    <fmt:message key="review.deadline"/> - ${reviewedPhase.deadline}
+                    <p><span th:text="#{review.start}"/> - <span th:text="${reviewedPhase.startTime.toLocalTime()}"/></p>
+                    <p><span th:text="#{review.end}"/> - <span th:text="${reviewedPhase.endTime.toLocalTime()}"/></p>
+                    <p><span th:text="#{review.deadline}"/> - <span th:text="${reviewedPhase.deadline.toLocalTime()}"/></p>
                 </div>
             </div>
             <div style="width: 20%"></div>
+
         </div>
     </div>
-</div>
 
-<form style="text-align: start" action="/game">
-    <input type="hidden" name="command" value="judge-rightAnswer">
-    <input class="btn btn-success " type="submit" value="Right">
-</form>
-
-<form style="text-align: start" action="/game">
-    <input type="hidden" name="command" value="judge-wrongAnswer">
-    <input class="btn btn-success " type="submit" value="Wrong">
-</form>
-
-
-<c:import url="footer.jsp"/>
+    <div th:insert="footer.html"/>
 
 </div>
 

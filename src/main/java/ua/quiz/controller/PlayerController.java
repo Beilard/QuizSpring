@@ -59,18 +59,18 @@ public class PlayerController {
             model.addAttribute("nameTaken", true);
             return "create-team";
         }
-
         final Team formedTeam = teamService.findTeamByName(teamName);
-
         User user = (User) session.getAttribute("user");
 
-        userService.update(user.toBuilder()
+        User userWithPassword = userService.findByEmail(user.getEmail());
+
+        userService.update(userWithPassword.toBuilder()
                 .isCaptain(true)
                 .team(formedTeam)
                 .build());
 
-        session.setAttribute("user", userService.findByEmail(user.getEmail()));
-        return "profile-page";
+        session.setAttribute("user", removePassword(userService.findByEmail(user.getEmail())));
+        return "player-page";
     }
 
     @GetMapping("/join-team")
@@ -91,12 +91,12 @@ public class PlayerController {
 
 
     @GetMapping("/check-team")
-    public String checkTeam(HttpSession session) {
+    public String checkTeam(Model model, HttpSession session) {
         final User user = (User) session.getAttribute("user");
 
         try {
             List<User> usersOfTeam = userService.findByTeamId(user.getTeam().getId());
-            session.setAttribute("usersOfTeam", usersOfTeam);
+            model.addAttribute("usersOfTeam", usersOfTeam);
         } catch (IllegalArgumentException | EntityNotFoundException e) {
             log.info("Failed to create user list");
             return "/player";
