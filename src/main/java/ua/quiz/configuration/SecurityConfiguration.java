@@ -40,10 +40,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .passwordParameter("password")
                 .and().logout().permitAll().and()
                 .exceptionHandling().accessDeniedPage("/404-error");
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                .logoutSuccessUrl("/").and().exceptionHandling()
-
-
     }
 
     @Override

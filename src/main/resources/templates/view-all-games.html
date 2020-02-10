@@ -132,57 +132,65 @@
 
         }
     </style>
-    <title>Homepage</title>
+    <title>All Games</title>
 </head>
 <body>
 <div th:insert="header.html"/>
+<div style="display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;" class="flex">
+    <form th:action="@{/judge/start-review}" method="get"
+          style="display: flex;flex-direction: column;margin-right: 30px;text-align: center;">
+        <label for="gameIdToReview">
+            <p th:text="#{judge.start.review}">
+            </p>
+        </label>
+        <input style="width: 20%; margin: 0 auto" name="gameIdToReview" id="gameIdToReview" type="text" th:placeholder="#{judge.start.gameid}">
+        <div style="margin-top:10px;text-align: center;width: 100%; ">
+            <input type="hidden" name="command" value="judge-startReview">
+            <input type="submit" class="btn btn-warning" th:value="#{judge.start.button}">
+        </div>
+        <div th:if="${incorrectId == true}" style="background: rgba(251, 213, 217, 0.5);width: 25%;height: 40px;border: 1px solid #00000029;margin: auto;"
+             class="incorrectId">
+            <span th:text="#{profile.wrongId}"></span>
+        </div>
+    </form>
 
-<form th:action="@{/judge/start-review}" method="get" style="margin-right: 30px">
-    <label for="gameIdToReview">
-        <p th:text="#{judge.start.review}">
-        </p>
-    </label>
-    <input name="gameIdToReview" id="gameIdToReview" type="text">
-    <div style="margin-top:10px;text-align: center;width: 100%; ">
-        <input type="hidden" name="command" value="judge-startReview">
-        <input type="submit" value="Review">
-    </div>
-</form>
-
-<form>
-    <table class="table table-striped">
-        <tr>
-            <th th:text="#{profile.pagination.gameId}"></th>
-            <th th:text="#{profile.pagination.teamName}"></th>
-            <th th:text="#{profile.pagination.currentPhase}"></th>
-            <th th:text="#{profile.pagination.status}"></th>
-        </tr>
-        <tr th:each="game:${allGames.content}">
-            <th th:text="${game.id}"></th>
-            <th th:text="${game.team.teamName}"></th>
-            <th th:text="${game.currentPhase}"></th>
-            <th th:text="${game.status}"></th>
-        </tr>
-    </table>
-</form>
-<div class="pagination-div">
+    <form>
+        <table class="table table-striped">
+            <tr>
+                <th th:text="#{profile.pagination.gameId}"></th>
+                <th th:text="#{profile.pagination.teamName}"></th>
+                <th th:text="#{profile.pagination.currentPhase}"></th>
+                <th th:text="#{profile.pagination.status}"></th>
+            </tr>
+            <tr th:each="game:${allGames.content}">
+                <th th:text="${game.id}"></th>
+                <th th:text="${game.team.teamName}"></th>
+                <th th:text="${game.currentPhase}"></th>
+                <th th:text="${game.status}"></th>
+            </tr>
+        </table>
+    </form>
+    <div class="pagination-div">
     <span th:if="${allGames.hasPrevious()}">
         <a style="color: green" th:href="@{/judge/view-all-games(page=${allGames.number -1},size=${allGames.size})}">Previous</a>
 
     </span>
-    <th:block th:each="i: ${#numbers.sequence(0, allGames.totalPages - 1)}">
-        <span th:if="${allGames.number == i}" class="selected">[[${i}+1]]</span>
-        <span th:unless="${allGames.number == i}">
+        <th:block th:each="i: ${#numbers.sequence(0, allGames.totalPages - 1)}">
+            <span th:if="${allGames.number == i}" class="selected">[[${i}+1]]</span>
+            <span th:unless="${allGames.number == i}">
              <a style="color: green" th:href="@{/judge/view-all-games(page=${i},size=${allGames.size})}">[[${i}+1]]</a>
         </span>
-    </th:block>
-    <span th:if="${allGames.hasNext()}">
+        </th:block>
+        <span th:if="${allGames.hasNext()}">
         <a style="color: green"
            th:href="@{/judge/view-all-games(page=${allGames.number+1},size=${allGames.size})}">Next</a>
     </span>
-</div>
+    </div>
     <div th:insert="footer.html"/>
-
+</div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"

@@ -141,13 +141,12 @@
   justify-content: space-between;" class="flex">
     <div th:insert="header.html"/>
 
-    <div style="background: red; " class="container">
-
-        <p th:text="statistics.count"></p>
-        <p th:text="correctAnswersCount"></p> /
-
-        <p th:text="numberOfQuestions"></p>
-
+    <div class="container">
+        <p style="font-size: 40px;text-align: center;">
+            <span th:text="#{statistics.count}"></span>
+            <span style="color: red;" th:text="${correctAnswersCount}"></span> /
+            <span style="color: red;" th:text="${numberOfQuestions}"></span>
+        </p>
 
     </div>
 

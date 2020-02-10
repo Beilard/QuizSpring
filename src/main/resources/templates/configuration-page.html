@@ -141,27 +141,27 @@
   justify-content: space-between;" class="flex">
     <div th:insert="header.html"/>
 
-    <div style="background: red; " class="container">
-        <p th:text="configuration.welcome">
+    <div style="border: 2px solid orange " class="container">
+        <p style="                font-size: 20px;
+                font-style: oblique;" th:text="#{configuration.welcome}">
         </p>
 
         <form th:action="@{/player/configure-game}" method="get">
             <input type="hidden" name="command" value="player-startGame">
-            <p th:text="configuration.numberOfpage"></p>
+            <p th:text="#{configuration.numberOfpage}"></p>
             <select class="form-control select-size" name="numberOfQuestions" id="numberOfQuestions">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="30">30</option>
             </select>
-            <p th:text="configuration.timePerQuestion"></p>
+            <p th:text="#{configuration.timePerQuestion}"></p>
             <select class="form-control select-size" name="timePerQuestion" id="timePerQuestion">
                 <option value="60">60</option>
                 <option value="90">90</option>
                 <option value="120">120</option>
             </select>
-            <input type="submit" value="Start">
+            <input style="width: 10%; margin-top: 10px;" type="submit" th:value="#{configuration.start}">
         </form>
-
     </div>
 
     <div th:insert="footer.html"/>

@@ -22,6 +22,8 @@ import ua.quiz.model.service.TeamService;
 import ua.quiz.model.service.UserService;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @Log4j
@@ -160,7 +162,7 @@ public class PlayerController {
         final Game game = (Game) session.getAttribute("game");
         final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        final Phase currentPhase = phases.get(game.getCurrentPhase());
+        final Phase currentPhase = getCurrentPhase(phases, game.getCurrentPhase());
         phaseService.initiatePhase(currentPhase, game.getTimePerQuestion());
         Game modifiedGame = gameService.findById(game.getId());
         session.setAttribute("game", modifiedGame);
@@ -183,7 +185,7 @@ public class PlayerController {
 
         final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        phaseService.finishPhase(phases.get(currentPhase), givenAnswer);
+        phaseService.finishPhase(getCurrentPhase(phases, currentPhase), givenAnswer);
 
         game.setCurrentPhase(currentPhase + 1);
         gameService.updateGame(game);
@@ -210,7 +212,7 @@ public class PlayerController {
         final Game game = (Game) session.getAttribute("game");
         final List<Phase> phases = phaseService.findPhasesByGameId(game.getId());
 
-        phaseService.useHint(phases.get(game.getCurrentPhase()));
+        phaseService.useHint(getCurrentPhase(phases, game.getCurrentPhase()));
 
         session.setAttribute("game", gameService.findById(game.getId()));
         model.addAttribute("hintUsed", true);
@@ -228,15 +230,16 @@ public class PlayerController {
         }
         Long correctAnswersCount = gameService.getCorrectAnswersCount(game);
 
-        session.setAttribute("correctAnswersCount", correctAnswersCount);
-        session.setAttribute("numberOfQuestions", game.getNumberOfQuestions());
+        model.addAttribute("correctAnswersCount", correctAnswersCount);
+        model.addAttribute("numberOfQuestions", game.getNumberOfQuestions());
 
         return "statistics-page";
     }
 
     @GetMapping("join-game")
     public String joinGame(Model model, HttpSession session,
-                           @RequestParam(value = "joinGameId") Long gameId) {
+                           @RequestParam(value = "joinGameId") @Min(value = 1, message = "ID should be within constraints")
+                           @Max(value = Long.MAX_VALUE, message = "ID should be within constraints") Long gameId) {
         final User user = (User) session.getAttribute("user");
         Game foundGame;
 
@@ -244,24 +247,24 @@ public class PlayerController {
             foundGame = gameService.findById(gameId);
         } catch (EntityNotFoundException e) {
             log.info("Game with ID " + gameId + "not found");
-            return "player-page";
-        }
-
-        if (foundGame.getStatus() == Status.REVIEWED) {
-            return "forward:/statistics";
-        } else if (foundGame.getStatus() == Status.PENDING) {
-            return "player-page";
+            return "view-all-team-games";
         }
 
         if (!foundGame.getTeam().getId().equals(user.getTeam().getId())) {
             log.info("User tried to join not his team's game. User ID: " + user.getId());
-            return "player-page";
+            return "view-all-team-games";
+        }
+
+        if (foundGame.getStatus() == Status.REVIEWED) {
+            return "forward:/player/statistics";
+        } else if (foundGame.getStatus() == Status.PENDING) {
+            return "view-all-team-games";
         }
 
         final List<Phase> phases = phaseService.findPhasesByGameId(foundGame.getId());
         session.setAttribute("game", foundGame);
         session.setAttribute("question", getQuestion(foundGame, phases));
-        model.addAttribute("hintUsed", getQuestion(foundGame, phases).getHint());
+        model.addAttribute("hintUsed", getCurrentPhase(phases, foundGame.getCurrentPhase()).getHintUsed());
 
         return "game-page";
     }
@@ -284,6 +287,10 @@ public class PlayerController {
     }
 
     private Question getQuestion(Game game, List<Phase> phases) {
-        return phases.get(game.getCurrentPhase()).getQuestion();
+        return getCurrentPhase(phases, game.getCurrentPhase()).getQuestion();
+    }
+
+    private Phase getCurrentPhase(List<Phase> phases, Integer currentPhase) {
+        return phases.get(currentPhase);
     }
 }

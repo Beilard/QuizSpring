@@ -174,10 +174,9 @@
              style="display: flex;justify-content: space-around; flex-direction:row; width: 100%; justify-items:center;">
             <div class="content" style="width: 100%;  margin: 10px;">
                 <p style=" width: 80%; height: 100px; text-align:center;color: black;font-size: 20px;border: 1px solid #dcd8d8;background: #00000014;" th:text="${session.question.getBody()}">
-                <form style="text-align: start" th:action="@{/player/finish-phase}" method="get">
+                <form style="text-align: start" th:action="@{/player/finish-phase}" method="post">
                     <input type="hidden" name="command" value="player-finishPhase">
-                    <%--                    Field for answer --%>
-                    <input style="width: 60%;" type="text" name="givenAnswer">
+                    <input style="width: 60%;" type="text" name="givenAnswer" th:placeholder="#{game.field.answer}">
                     <input class="btn btn-success " type="submit" value="Submit">
                 </form>
             </div>

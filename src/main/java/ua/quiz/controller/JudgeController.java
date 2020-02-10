@@ -22,6 +22,8 @@ import ua.quiz.model.service.GameService;
 import ua.quiz.model.service.PhaseService;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @Log4j
@@ -44,7 +46,8 @@ public class JudgeController {
 
     @GetMapping("/start-review")
     public String checkTeam(HttpSession session,
-                            @RequestParam(value = "gameIdToReview") Long gameIdToReview) {
+                            @RequestParam(value = "gameIdToReview") @Min(value = 1, message = "ID should be within constraints")
+                            @Max(value = Long.MAX_VALUE, message = "ID should be within constraints") Long gameIdToReview) {
         Game gamePreparedForReview;
 
         try {
