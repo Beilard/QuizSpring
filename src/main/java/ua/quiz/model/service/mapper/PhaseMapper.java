@@ -1,5 +1,7 @@
 package ua.quiz.model.service.mapper;
 
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Phase;
 import ua.quiz.model.entity.GameEntity;
@@ -8,9 +10,10 @@ import ua.quiz.model.entity.PhaseEntity;
 import java.util.Objects;
 
 @Component
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PhaseMapper {
-    private final QuestionMapper questionMapper = new QuestionMapper();
-    private final GameMapper gameMapper = new GameMapper();
+    private final QuestionMapper questionMapper;
+    private final GameMapper gameMapper;
 
     public Phase mapPhaseEntityToPhase(PhaseEntity phaseEntity) {
         QuestionMapper questionMapper = new QuestionMapper();

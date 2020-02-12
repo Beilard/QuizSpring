@@ -36,14 +36,14 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void createTeam(String teamName) {
         if (teamName.length() < MIN_TEAM_NAME_LENGTH || teamName.length() > MAX_TEAM_NAME_LENGTH) {
-            log.warn("Provided arguments are incorrect: " + teamName);
-            throw new IllegalArgumentException("Provided arguments are incorrect: ");
+            log.warn("Team name length is out of bounds");
+            throw new IllegalArgumentException("Team name length is out of bounds");
         }
         Optional<TeamEntity> teamFoundByName = teamRepository.findByTeamName(teamName);
 
         if (teamFoundByName.isPresent()) {
-            log.info("Team with name found " + teamName);
-            throw new EntityAlreadyExistsException("Team with name found " + teamName);
+            log.info("User tried to create a team with reserved name: " + teamName);
+            throw new EntityAlreadyExistsException("User tried to create a team with reserved name: " + teamName);
         }
         final TeamEntity team = new TeamEntity();
         team.setTeamName(teamName);
@@ -55,8 +55,8 @@ public class TeamServiceImpl implements TeamService {
         if (newCaptain == null || oldCaptain == null
                 || !Objects.equals(newCaptain.getTeam().getId(), oldCaptain.getTeam().getId())
                 || newCaptain.getIsCaptain()) {
-            log.warn("New captain or teamId passed were null");
-            throw new IllegalArgumentException("New captain or teamId passed were null");
+            log.warn("New captain or old captain passed were null or illegal");
+            throw new IllegalArgumentException("New captain or old captain passed were null or illegal");
         }
 
         User oldCaptainWithEmail = getOldCaptainWithEmail(oldCaptain);
@@ -89,8 +89,8 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public Team findTeamByName(String name) {
         if (name == null) {
-            log.warn("String provided for findByName was null");
-            throw new IllegalArgumentException("String provided for findByName was null");
+            log.warn("String provided for findTeamByName was null");
+            throw new IllegalArgumentException("String provided for findTeamByName was null");
         }
         final TeamEntity teamEntity = teamRepository.findByTeamName(name).orElseThrow(EntityNotFoundException::new);
 

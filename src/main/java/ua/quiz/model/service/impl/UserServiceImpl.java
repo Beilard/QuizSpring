@@ -68,8 +68,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findByTeamId(Long teamId) {
         if (teamId == null) {
-            log.warn("team ID passed is null");
-            throw new IllegalArgumentException("team ID passed is null");
+            log.warn("Team ID passed is null");
+            throw new IllegalArgumentException("Team ID passed is null");
         }
 
         final List<UserEntity> entities = userRepository.findAllByTeamId(teamId);
@@ -80,8 +80,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByEmail(String email) {
         if (email == null) {
-            log.warn("email passed is null");
-            throw new InvalidCredentialsException("email passed is null");
+            log.warn("Email passed is null");
+            throw new IllegalArgumentException("Email passed is null");
         }
 
         return userRepository.findByEmail(email)
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     public void update(User user) {
         if (user == null) {
             log.warn("User passed to update is null");
-            throw new InvalidCredentialsException("User passed to update is null");
+            throw new IllegalArgumentException("User passed to update is null");
         }
 
         userRepository.save(userMapper.mapUserToUserEntity(user));

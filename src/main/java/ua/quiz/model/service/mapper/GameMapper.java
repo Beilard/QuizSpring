@@ -1,5 +1,7 @@
 package ua.quiz.model.service.mapper;
 
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.quiz.model.dto.Game;
 import ua.quiz.model.dto.Status;
@@ -9,8 +11,9 @@ import ua.quiz.model.entity.StatusEntity;
 import java.util.Objects;
 
 @Component
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class GameMapper {
-    private final TeamMapper teamMapper = new TeamMapper();
+    private final TeamMapper teamMapper;
 
     public Game mapGameEntityToGame(GameEntity gameEntity) {
         if (Objects.isNull(gameEntity)) {

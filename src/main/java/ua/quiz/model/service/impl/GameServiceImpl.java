@@ -4,27 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.quiz.model.dto.*;
+import ua.quiz.model.dto.Game;
+import ua.quiz.model.dto.Status;
+import ua.quiz.model.dto.Team;
 import ua.quiz.model.entity.GameEntity;
 import ua.quiz.model.entity.PhaseEntity;
 import ua.quiz.model.exception.EntityNotFoundException;
 import ua.quiz.model.repository.GameRepository;
 import ua.quiz.model.repository.PhaseRepository;
-import ua.quiz.model.repository.QuestionRepository;
 import ua.quiz.model.service.GameService;
 import ua.quiz.model.service.mapper.GameMapper;
-import ua.quiz.model.service.mapper.PhaseMapper;
-import ua.quiz.model.service.mapper.QuestionMapper;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service("gameService")
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -106,8 +100,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public Long getCorrectAnswersCount(Game game) {
         if (game == null) {
-            log.warn("Null id passed to get correct answers from the game");
-            throw new IllegalArgumentException("Null id passed to get correct answers from the game");
+            log.warn("Null game passed to get correct amount of answers");
+            throw new IllegalArgumentException("Null game passed to get correct amount of answers");
         }
 
         List<PhaseEntity> phaseEntitiesByGameId = phaseRepository.findPhaseEntitiesByGameId(game.getId());

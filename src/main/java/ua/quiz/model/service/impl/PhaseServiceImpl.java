@@ -55,8 +55,8 @@ public class PhaseServiceImpl implements PhaseService {
     @Override
     public void initiatePhase(Phase phase, Integer timePerQuestion) {
         if (phase == null || timePerQuestion == null) {
-            log.warn("Passed phase is null");
-            throw new IllegalArgumentException("Passed phase is null");
+            log.warn("Passed phase is null or timePerQuestion is invalid");
+            throw new IllegalArgumentException("Passed phase is null or timePerQuestion is invalid");
         }
         Phase initiatedPhase = setDeadlines(phase, timePerQuestion);
 
@@ -76,8 +76,8 @@ public class PhaseServiceImpl implements PhaseService {
     @Override
     public void reviewPhasePositively(Phase phase) {
         if (phase == null) {
-            log.warn("Passed phase is null");
-            throw new IllegalArgumentException("Passed phase is null");
+            log.warn("Passed phase to positively review is null");
+            throw new IllegalArgumentException("Passed phase to positively review is null");
         }
         Phase updatedPhase = changeToCorrect(phase);
         phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(updatedPhase));
@@ -99,8 +99,8 @@ public class PhaseServiceImpl implements PhaseService {
     @Override
     public void useHint(Phase phase) {
         if (phase == null) {
-            log.warn("Passed phase is null");
-            throw new IllegalArgumentException("Passed phase is null");
+            log.warn("Passed phase to turn on hint is null");
+            throw new IllegalArgumentException("Passed phase to turn on hint is null");
         }
         Phase phaseWithHint = enableHint(phase);
         phaseRepository.save(phaseMapper.mapPhaseToPhaseEntity(phaseWithHint));
