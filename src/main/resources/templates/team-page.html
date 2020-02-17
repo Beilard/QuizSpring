@@ -148,7 +148,7 @@
             <p style="text-align: center; font-size: 20px; font-style: oblique;" th:text="#{team.change.captain}">
             </p>
         </label>
-        <input style="margin: 0 auto; width: 20%" name="newCaptainEmail" id="newCaptainEmail" type="text">
+        <input style="margin: 0 auto; width: 20%" name="newCaptainEmail" id="newCaptainEmail" type="text" required pattern="^(?=.{4,31}$)\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,4}$">
         <div style="margin-top:10px;text-align: center;width: 100%; ">
             <input type="hidden" name="command" value="player-changeCaptain">
             <input type="submit" style="width: 10%; align-content: center" class="btn btn-warning" th:value="#{team.change.button}">
